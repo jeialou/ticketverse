@@ -134,7 +134,9 @@ header.nav{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);-webkit-b
   .mobtabs a{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.64rem;line-height:1.2;padding:10px 4px;border-radius:15px;background:var(--surface-2);border:1px solid var(--line)}
   .mobtabs a:active{background:var(--surface-3);color:var(--text)}
   body{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
-  .tray{bottom:calc(82px + env(safe-area-inset-bottom));padding-bottom:10px}
+  body .tray{bottom:calc(var(--tabs-h,92px) + env(safe-area-inset-bottom));padding-bottom:10px}
+  body.tray-open{padding-bottom:calc(var(--tabs-h,92px) + 150px + env(safe-area-inset-bottom))}
+  .tray-in .info{min-width:0;flex:1 1 55%}
   .toast{bottom:calc(94px + env(safe-area-inset-bottom))!important}
 }
 
@@ -1062,7 +1064,7 @@ function renderSeats(){
 function clearSel(){selected=[];renderSeats();renderTray()}
 function renderTray(){
   var n=selected.length,e=curEv();
-  $('tray').classList.toggle('show',n>0);
+  $('tray').classList.toggle('show',n>0);document.body.classList.toggle('tray-open',n>0);
   $('traySeats').textContent=n+(n===1?' seat selected':' seats selected');
   if(n){ var z=zoneOf(e,selected[0].zone);
     $('trayWhere').textContent=z.name+' · '+selected.map(function(s){return s.key}).join(', ');
@@ -1627,6 +1629,12 @@ document.addEventListener('click',function(ev0){
     renderTray();return;
   }
 });
+(function(){var t=document.querySelector('.mobtabs');if(!t)return;
+  function m(){var h=t.offsetHeight||0;document.documentElement.style.setProperty('--tabs-h',(h+12+8)+'px')}
+  m();window.addEventListener('resize',m);
+  if(window.ResizeObserver)new ResizeObserver(m).observe(t);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(m);
+})();
 $('trayClear').onclick=clearSel;
 $('trayBook').onclick=openBooking;
 $('newChapelEvent').onclick=function(){openBuilder('chapel')};
